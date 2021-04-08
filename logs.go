@@ -22,19 +22,22 @@ var (
 	logs = make(map[string]*log.Logger)
 	maxAge time.Duration
 	rotationTime time.Duration
-	
+	logPath string
 )
 
 
-func InitLogs(logPath string,logNames ...string) {
+func InitLogs(path string) {
 	log.SetLevel(log.InfoLevel)
 	log.SetOutput(os.Stdout)
-	for _, logName := range logNames {
-		l:=log.New()
-		l.SetOutput(os.Stdout)
-		l.AddHook(newRotateHook(logPath, logName, maxAge, rotationTime))
-		logs[logName]=l
-	}
+	logPath = path
+	
+}
+
+func addNewLogFile(logName string) {
+	l:=log.New()
+	l.SetOutput(os.Stdout)
+	l.AddHook(newRotateHook(logPath, logName, maxAge, rotationTime))
+	logs[logName]=l
 }
 
 func newRotateHook(logPath string, logFileName string, maxAge time.Duration, rotationTime time.Duration) *lfshook.LfsHook {
@@ -58,43 +61,53 @@ func newRotateHook(logPath string, logFileName string, maxAge time.Duration, rot
 	}, &log.TextFormatter{TimestampFormat: "2006-01-02 15:04:05"})
 }
 
+func checkLog(logName string,args ...interface{}) bool {
+	if logs[logName] == nil {
+		addNewLogFile(logName)
+	}
+	if len(args) <= 0 {
+		return false
+	}
+	return true
+}
+
 func Info(logName string,args ...interface{}) {
-	if logs[logName] == nil || len(args) <= 0 {
+	if !checkLog(logName,args){
 		return
 	}
 	logs[logName].Info(args, printCallerName())
 }
 
 func Debug(logName string,args ...interface{}) {
-	if logs[logName] == nil || len(args) <= 0 {
+	if !checkLog(logName,args){
 		return
 	}
 	logs[logName].Debug(args, printCallerName())
 }
 
 func Warn(logName string,args ...interface{}) {
-	if logs[logName] == nil || len(args) <= 0 {
+	if !checkLog(logName,args){
 		return
 	}
 	logs[logName].Warn(args, printCallerName())
 }
 
 func Error(logName string,args ...interface{}) {
-	if logs[logName] == nil || len(args) <= 0 {
+	if !checkLog(logName,args){
 		return
 	}
 	logs[logName].Error(args, printCallerName())
 }
 
 func Fatal(logName string,args ...interface{}) {
-	if logs[logName] == nil || len(args) <= 0 {
+	if !checkLog(logName,args){
 		return
 	}
 	logs[logName].Fatal(args, printCallerName())
 }
 
 func Panic(logName string,args ...interface{}) {
-	if logs[logName] == nil || len(args) <= 0 {
+	if !checkLog(logName,args){
 		return
 	}
 	logs[logName].Panic(args, printCallerName())
