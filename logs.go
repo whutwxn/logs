@@ -30,7 +30,8 @@ func InitLogs(path string) {
 	log.SetLevel(log.InfoLevel)
 	log.SetOutput(os.Stdout)
 	logPath = path
-	
+	maxAge = 7*24*time.Hour
+	rotationTime = 24*time.Hour
 }
 
 func addNewLogFile(logName string) {
