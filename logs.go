@@ -42,10 +42,10 @@ func addNewLogFile(logName string) {
 }
 
 func newRotateHook(logPath string, logFileName string, maxAge time.Duration, rotationTime time.Duration) *lfshook.LfsHook {
-	baseLogPath := path.Join(logPath, "%Y-%m-%d--"+logFileName+".log")
+	baseLogPath := path.Join(logPath, "%Y-%m-%d."+logFileName+".log")
 	writer, err := rotatelogs.New(
 		baseLogPath,
-		rotatelogs.WithLinkName(baseLogPath),      // 生成软链，指向最新日志文
+		rotatelogs.WithLinkName(path.Join(logPath,logFileName+".log")),      // 生成软链，指向最新日志文
 		rotatelogs.WithMaxAge(maxAge),             // 文件最大保存时间
 		rotatelogs.WithRotationTime(rotationTime), // 日志切割时间间隔
 	)
